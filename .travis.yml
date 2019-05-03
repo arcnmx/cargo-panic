@@ -1,0 +1,34 @@
+os:
+- linux
+- macos
+language: rust
+rust:
+- stable
+- beta
+- nightly
+env:
+- RUST_BACKTRACE=pretty
+- RUST_BACKTRACE=color
+- RUST_BACKTRACE=debug_test
+- RUST_BACKTRACE=
+matrix:
+  allow_failures:
+  - env: RUST_BACKTRACE=pretty
+cache: cargo
+script:
+- set -o pipefail
+- make install DESTDIR=$PWD/path
+- export PATH="$PATH:$PWD/path"
+- cd example/
+- "function expect_panic() { if [[ $? != 101 ]]; then echo expected panic; return 1; fi; }"
+- "function assert() { if ! eval \"$1\"; then echo assertion failed: $1; return 1; fi; }"
+- "function dirty() { cargo clean -p cargo-panic-example; }"
+- cargo run --verbose; expect_panic
+- dirty
+- cargo panic run --verbose; expect_panic
+- if [[ $RUST_BACKTRACE = debug_test ]]; then assert '[[ $(cargo panic run) = __CARGO_PANIC_TEST__ ]]'; fi
+- cargo test --verbose -- --nocapture
+- dirty
+- cargo panic test --verbose -- --nocapture
+- if [[ $RUST_BACKTRACE = debug_test ]]; then assert 'cargo panic test -- --nocapture | grep __CARGO_PANIC_TEST__'; fi
+- dirty

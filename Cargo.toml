@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+	"hook",
+	"depend",
+]
+exclude = [
+	"example"
+]

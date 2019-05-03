@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export LD_PRELOAD="${LD_PRELOAD+$LD_PRELOAD:}$__CARGO_PANIC_LIB"
+exec "$@"

@@ -1,0 +1,8 @@
+[package]
+name = "cargo-panic-depend"
+version = "0.1.0"
+authors = ["arc"]
+edition = "2018"
+
+[lib]
+crate-type = ["staticlib"]

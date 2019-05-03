@@ -1,0 +1,39 @@
+#!/bin/bash
+set -eu
+
+ROOT=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" >/dev/null 2>&1 && pwd)
+
+__CARGO_PANIC_CRATE="cargo-panic-hook"
+__CARGO_PANIC_CRATE_DIR="$ROOT/hook"
+
+case ${RUST_BACKTRACE-color} in
+	debug_test)
+		__CARGO_PANIC_FEATURES="debug_test"
+		;;
+	pretty)
+		__CARGO_PANIC_FEATURES="pretty_backtrace"
+		;;
+	color|full|*)
+		__CARGO_PANIC_FEATURES="color-backtrace"
+		export RUST_BACKTRACE=full
+		;;
+esac
+
+export __CARGO_PANIC_LIB=$(
+	${CARGO-cargo} build --color always --features "$__CARGO_PANIC_FEATURES" --manifest-path "$__CARGO_PANIC_CRATE_DIR/Cargo.toml" --message-format json \
+		2> >(grep -vF "    Finished" >&2 || true) \
+		| jq -er 'select(.reason == "compiler-artifact" and .target.name == "'"$__CARGO_PANIC_CRATE"'" and .target.kind[0] == "dylib").filenames[0]' \
+)
+
+if [[ ! -f $__CARGO_PANIC_LIB ]]; then
+	echo "cargo-panic: $__CARGO_PANIC_LIB not found" >&2
+fi
+
+#export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=$ROOT/bin/runner
+export RUSTC_WRAPPER=$ROOT/bin/wrapper
+
+if [[ ${1-} == panic ]]; then
+	shift
+fi
+
+exec "${CARGO-cargo}" "$@"
