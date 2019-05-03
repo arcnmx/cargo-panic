@@ -27,6 +27,7 @@ matrix:
 cache: cargo
 script:
 - set -o pipefail
+- if [[ $TRAVIS_OS_NAME = osx ]]; then brew install jq; fi
 - make install DESTDIR=$PWD/path
 - export PATH="$PATH:$PWD/path"
 - cd example/

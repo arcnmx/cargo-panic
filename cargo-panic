@@ -5,7 +5,11 @@ if [[ ${1-} == panic ]]; then
 	shift
 fi
 
-ROOT=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" >/dev/null 2>&1 && pwd)
+ROOT=${BASH_SOURCE[0]}
+if [[ -L $ROOT ]]; then
+	ROOT=$(readlink "$ROOT")
+fi
+ROOT=$(cd "$(dirname "$ROOT")" >/dev/null 2>&1 && pwd)
 
 case ${RUST_BACKTRACE-color} in
 	0)
