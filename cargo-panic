@@ -1,12 +1,16 @@
 #!/bin/bash
 set -eu
 
+if [[ ${1-} == panic ]]; then
+	shift
+fi
+
 ROOT=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" >/dev/null 2>&1 && pwd)
 
-__CARGO_PANIC_CRATE="cargo-panic-hook"
-__CARGO_PANIC_CRATE_DIR="$ROOT/hook"
-
 case ${RUST_BACKTRACE-color} in
+	0)
+		exec "${CARGO-cargo}" "$@"
+		;;
 	debug_test)
 		__CARGO_PANIC_FEATURES="debug_test"
 		;;
@@ -18,6 +22,9 @@ case ${RUST_BACKTRACE-color} in
 		export RUST_BACKTRACE=full
 		;;
 esac
+
+__CARGO_PANIC_CRATE="cargo-panic-hook"
+__CARGO_PANIC_CRATE_DIR="$ROOT/hook"
 
 export __CARGO_PANIC_LIB=$(
 	${CARGO-cargo} build --color always --features "$__CARGO_PANIC_FEATURES" --manifest-path "$__CARGO_PANIC_CRATE_DIR/Cargo.toml" --message-format json \
@@ -31,9 +38,5 @@ fi
 
 #export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=$ROOT/bin/runner
 export RUSTC_WRAPPER=$ROOT/bin/wrapper
-
-if [[ ${1-} == panic ]]; then
-	shift
-fi
 
 exec "${CARGO-cargo}" "$@"
