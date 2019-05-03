@@ -1,6 +1,6 @@
 os:
 - linux
-- macos
+- osx
 language: rust
 rust:
 - stable
@@ -16,7 +16,7 @@ matrix:
   - env: RUST_BACKTRACE=pretty
   exclude:
   - env: RUST_BACKTRACE=pretty
-    os: macos
+    os: osx
   - env: RUST_BACKTRACE=pretty
     rust: nightly
   include:
