@@ -10,7 +10,7 @@ This project is an experimental work-in-progress, and probably only works on Lin
 
 ```shell
 git clone https://github.com/arcnmx/cargo-panic.git
-make -C cargo-panic install DEST=$HOME/.cargo/bin # or anywhere else you might have in $PATH
+make -C cargo-panic install DESTDIR=$HOME/.cargo/bin # or anywhere else you might have in $PATH
 
 cd cargo-panic/example
 cargo panic run # try it out! defaults to RUST_BACKTRACE=color
