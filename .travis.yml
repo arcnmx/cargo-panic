@@ -27,9 +27,9 @@ matrix:
 cache: cargo
 script:
 - set -o pipefail
-- if [[ $TRAVIS_OS_NAME = osx ]]; then brew install jq; fi
 - make install DESTDIR=$PWD/path
 - export PATH="$PATH:$PWD/path"
+- if [[ $TRAVIS_OS_NAME = osx ]]; then curl -LSsfo path/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64 && chmod +x path/jq; fi
 - cd example/
 - "function expect_panic() { if [[ $? != 101 ]]; then echo expected panic; return 1; fi; }"
 - "function assert() { if ! eval \"$1\"; then echo assertion failed: $1; return 1; fi; }"
