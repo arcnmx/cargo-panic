@@ -45,6 +45,7 @@ if [[ -n ${RUSTC_WRAPPER-} ]]; then
 fi
 
 #export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=$ROOT/bin/runner
+#export CARGO_TARGET_X86_64_APPLE_DARWIN_RUNNER=$ROOT/bin/runner
 export RUSTC_WRAPPER=$ROOT/bin/wrapper
 
 exec "${CARGO-cargo}" "$@"
