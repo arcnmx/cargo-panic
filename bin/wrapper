@@ -1,3 +1,11 @@
 #!/bin/bash
 
-exec "$@" -C link-args="-Wl,--no-as-needed $__CARGO_PANIC_LIB"
+RUSTC_ARGS=(-C prefer-dynamic -C link-arg="$__CARGO_PANIC_LIB")
+
+# TODO: detect linker and targets properly
+if [[ $OSTYPE != darwin* ]]; then
+	# macos ld doesn't understand --no-as-needed
+	RUSTC_ARGS=(-C link-arg=-Wl,--no-as-needed "${RUSTC_ARGS[@]}")
+fi
+
+exec "$@" "${RUSTC_ARGS[@]}"
