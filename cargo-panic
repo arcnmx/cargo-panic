@@ -5,12 +5,6 @@ if [[ ${1-} == panic ]]; then
 	shift
 fi
 
-ROOT=${BASH_SOURCE[0]}
-if [[ -L $ROOT ]]; then
-	ROOT=$(readlink "$ROOT")
-fi
-ROOT=$(cd "$(dirname "$ROOT")" >/dev/null 2>&1 && pwd)
-
 case ${RUST_BACKTRACE-color} in
 	0)
 		exec "${CARGO-cargo}" "$@"
@@ -27,6 +21,12 @@ case ${RUST_BACKTRACE-color} in
 		;;
 esac
 
+ROOT=${BASH_SOURCE[0]}
+if [[ -L $ROOT ]]; then
+	ROOT=$(readlink "$ROOT")
+fi
+ROOT=$(cd "$(dirname "$ROOT")" >/dev/null 2>&1 && pwd)
+
 __CARGO_PANIC_CRATE="cargo-panic-hook"
 __CARGO_PANIC_CRATE_DIR="$ROOT/hook"
 
@@ -38,6 +38,10 @@ export __CARGO_PANIC_LIB=$(
 
 if [[ ! -f $__CARGO_PANIC_LIB ]]; then
 	echo "cargo-panic: $__CARGO_PANIC_LIB not found" >&2
+fi
+
+if [[ -v RUSTC_WRAPPER ]]; then
+	export _RUSTC_WRAPPER=$RUSTC_WRAPPER
 fi
 
 #export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=$ROOT/bin/runner
