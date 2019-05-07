@@ -8,7 +8,7 @@ if [[ $OSTYPE != darwin* ]]; then
 	RUSTC_ARGS=(-C link-arg=-Wl,--no-as-needed "${RUSTC_ARGS[@]}")
 fi
 
-if [[ -v _RUSTC_WRAPPER ]]; then
+if [[ -n ${_RUSTC_WRAPPER-} ]]; then
 	exec "$_RUSTC_WRAPPER" "$@" "${RUSTC_ARGS[@]}"
 else
 	exec "$@" "${RUSTC_ARGS[@]}"

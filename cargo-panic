@@ -40,7 +40,7 @@ if [[ ! -f $__CARGO_PANIC_LIB ]]; then
 	echo "cargo-panic: $__CARGO_PANIC_LIB not found" >&2
 fi
 
-if [[ -v RUSTC_WRAPPER ]]; then
+if [[ -n ${RUSTC_WRAPPER-} ]]; then
 	export _RUSTC_WRAPPER=$RUSTC_WRAPPER
 fi
 
