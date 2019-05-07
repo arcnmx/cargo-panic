@@ -4,7 +4,8 @@
 
 Use panic handlers [`color-backtrace`](https://github.com/athre0z/color-backtrace) and [`pretty_backtrace`](https://github.com/bjorn3/pretty_backtrace) on-demand without requiring source modifications or changing `Cargo.toml`.
 
-This project is an experimental work-in-progress, and probably only works on Linux.
+This project is an experimental work-in-progress, see the [caveats](#caveats-and-limitations) section below.
+
 
 ## Installation
 
@@ -20,12 +21,12 @@ cargo panic test -- --nocapture # and tests too
 RUST_BACKTRACE=pretty cargo panic run # optionally supports pretty_backtrace
 ```
 
-## Future Improvements
 
-1. Conversion to pure rust and easy installation via `cargo install cargo-panic`
-2. Windows support
-3. Support for --target and non-standard cargo invokations/configs
-4. Usability improvements, possibly wrapping cargo instead of providing a separate command for more seamless `RUST_BACKTRACE` activation
+## Caveats and Limitations
+
+- You'll probably want to set [`rustflags = ["-C", "prefer-dynamic"]`](https://doc.rust-lang.org/cargo/reference/config.html) or `RUSTFLAGS="-C prefer-dynamic"` for your debug builds. Otherwise you must `touch src/main.rs`, `cargo clean -p yourcrate`, or otherwise tell cargo to relink your project before running `cargo panic X`. [#6](https://github.com/arcnmx/cargo-panic/issues/6)
+- [Windows](https://github.com/arcnmx/cargo-panic/issues/2) and [cross-compiling or obscure cargo configurations](https://github.com/arcnmx/cargo-panic/issues/3) are not yet supported.
+
 
 [travis-badge]: https://img.shields.io/travis/arcnmx/cargo-panic/master.svg?style=flat-square
 [travis]: https://travis-ci.org/arcnmx/cargo-panic
