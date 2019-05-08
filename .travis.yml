@@ -12,18 +12,16 @@ env:
   - RUST_BACKTRACE=debug_test
 matrix:
   fast_finish: true
-  allow_failures:
-  - env: RUST_BACKTRACE=pretty
   exclude:
   - env: RUST_BACKTRACE=pretty
-    os: osx
-  - env: RUST_BACKTRACE=pretty
+    rust: nightly
+  - env: RUST_BACKTRACE=color
     rust: nightly
   include:
   - os: linux
     rust: stable
     env:
-    - RUST_BACKTRACE=
+    - RUST_BACKTRACE=0
 cache: cargo
 script:
 - set -o pipefail
