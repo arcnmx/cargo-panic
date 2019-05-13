@@ -21,14 +21,16 @@ case ${RUST_BACKTRACE-color} in
 		;;
 esac
 
-ROOT=${BASH_SOURCE[0]}
-if [[ -L $ROOT ]]; then
-	ROOT=$(readlink "$ROOT")
+if [[ -z ${CARGO_PANIC_DIR-} ]]; then
+	CARGO_PANIC_DIR=${BASH_SOURCE[0]}
+	if [[ -L $CARGO_PANIC_DIR ]]; then
+		CARGO_PANIC_DIR=$(readlink "$CARGO_PANIC_DIR")
+	fi
+	CARGO_PANIC_DIR=$(cd "$(dirname "$CARGO_PANIC_DIR")" >/dev/null 2>&1 && pwd)
 fi
-ROOT=$(cd "$(dirname "$ROOT")" >/dev/null 2>&1 && pwd)
 
 __CARGO_PANIC_CRATE="cargo-panic-hook"
-__CARGO_PANIC_CRATE_DIR="$ROOT/hook"
+__CARGO_PANIC_CRATE_DIR="$CARGO_PANIC_DIR/hook"
 
 export __CARGO_PANIC_LIB=$(
 	${CARGO-cargo} build --color always --features "$__CARGO_PANIC_FEATURES" --manifest-path "$__CARGO_PANIC_CRATE_DIR/Cargo.toml" --message-format json \
@@ -44,8 +46,8 @@ if [[ -n ${RUSTC_WRAPPER-} ]]; then
 	export _RUSTC_WRAPPER=$RUSTC_WRAPPER
 fi
 
-#export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=$ROOT/bin/runner
-#export CARGO_TARGET_X86_64_APPLE_DARWIN_RUNNER=$ROOT/bin/runner
-export RUSTC_WRAPPER=$ROOT/bin/wrapper
+#export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER=$CARGO_PANIC_DIR/bin/runner
+#export CARGO_TARGET_X86_64_APPLE_DARWIN_RUNNER=$CARGO_PANIC_DIR/bin/runner
+export RUSTC_WRAPPER=$CARGO_PANIC_DIR/bin/wrapper
 
 exec "${CARGO-cargo}" "$@"
