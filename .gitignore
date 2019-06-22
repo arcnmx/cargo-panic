@@ -1,4 +1,5 @@
 /.gitattributes
 /target/
-!/Cargo.lock
+/result
 Cargo.lock
+!/Cargo.lock

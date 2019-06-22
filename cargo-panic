@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu
 
-if [[ ${1-} == panic ]]; then
+while [[ ${1-} == panic ]]; do
 	shift
-fi
+done
 
 case ${RUST_BACKTRACE-color} in
 	0)
@@ -32,8 +32,14 @@ fi
 __CARGO_PANIC_CRATE="cargo-panic-hook"
 __CARGO_PANIC_CRATE_DIR="$CARGO_PANIC_DIR/hook"
 
+if [[ -w $CARGO_PANIC_DIR ]]; then
+	__CARGO_PANIC_DIR=$CARGO_PANIC_DIR/target
+else
+	__CARGO_PANIC_DIR=${XDG_CACHE_HOME-$HOME/.cache}/cargo-panic
+fi
+
 export __CARGO_PANIC_LIB=$(
-	${CARGO-cargo} build --color always --features "$__CARGO_PANIC_FEATURES" --manifest-path "$__CARGO_PANIC_CRATE_DIR/Cargo.toml" --message-format json \
+	CARGO_TARGET_DIR=$__CARGO_PANIC_DIR ${CARGO-cargo} build --color always --features "$__CARGO_PANIC_FEATURES" --manifest-path "$__CARGO_PANIC_CRATE_DIR/Cargo.toml" --message-format json \
 		2> >(grep -vF "    Finished" >&2 || true) \
 		| jq -er 'select(.reason == "compiler-artifact" and .target.name == "'"$__CARGO_PANIC_CRATE"'" and .target.kind[0] == "dylib").filenames[0]' \
 )

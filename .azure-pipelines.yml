@@ -1,0 +1,105 @@
+stages:
+- stage: test
+  jobs:
+  - job: test
+    pool:
+      vmImage: $(imageName)
+    variables:
+      NIXPKGS_CHANNEL: nixos-19.03
+      BASH_ENV: ~/.nix-profile/etc/profile.d/nix.sh
+      TERM: linux
+    strategy:
+      matrix:
+        linux_stable_test:
+          imageName: ubuntu-16.04
+          RUST_CHANNEL: stable
+          RUST_BACKTRACE: debug_test
+        linux_stable_pretty:
+          imageName: ubuntu-16.04
+          RUST_CHANNEL: stable
+          RUST_BACKTRACE: pretty
+        linux_stable_color:
+          imageName: ubuntu-16.04
+          RUST_CHANNEL: stable
+          RUST_BACKTRACE: color
+        linux_stable_zero:
+          imageName: ubuntu-16.04
+          RUST_CHANNEL: stable
+          RUST_BACKTRACE: 0
+        linux_stable_none:
+          imageName: ubuntu-16.04
+          RUST_CHANNEL: stable
+          RUST_BACKTRACE: ""
+        macos_stable_test:
+          imageName: macos-10.13
+          RUST_CHANNEL: stable
+          RUST_BACKTRACE: debug_test
+        macos_stable_pretty:
+          imageName: macos-10.13
+          RUST_CHANNEL: stable
+          RUST_BACKTRACE: pretty
+        macos_stable_color:
+          imageName: macos-10.13
+          RUST_CHANNEL: stable
+          RUST_BACKTRACE: color
+    steps:
+    - bash: sh <(curl https://nixos.org/releases/nix/nix-2.2.1/install) --no-daemon
+      displayName: nix install
+    - bash: nix-channel --add https://nixos.org/channels/$(NIXPKGS_CHANNEL) nixpkgs
+      displayName: nix-channel --add $(NIXPKGS_CHANNEL)
+    - bash: nix-channel --update
+    - bash: nix-shell -A ci --run "cargo panic -V"
+      displayName: cargo-panic build
+    - bash: nix-shell -A ci --run cargo-panic-test --argstr cmd run
+      displayName: cargo panic run
+    - bash: nix-shell -A ci --run cargo-panic-test --argstr cmd test
+      displayName: cargo panic test
+- stage: test_unstable
+  dependsOn: []
+  jobs:
+  - job: test_unstable
+    pool:
+      vmImage: $(imageName)
+    variables:
+      NIXPKGS_CHANNEL: nixos-19.03
+      BASH_ENV: ~/.nix-profile/etc/profile.d/nix.sh
+      TERM: linux
+    strategy:
+      matrix:
+        linux_nightly_test:
+          imageName: ubuntu-16.04
+          RUST_CHANNEL: nightly
+          RUST_BACKTRACE: debug_test
+        linux_beta_test:
+          imageName: ubuntu-16.04
+          RUST_CHANNEL: beta
+          RUST_BACKTRACE: debug_test
+        linux_beta_pretty:
+          imageName: ubuntu-16.04
+          RUST_CHANNEL: beta
+          RUST_BACKTRACE: pretty
+        linux_beta_color:
+          imageName: ubuntu-16.04
+          RUST_CHANNEL: beta
+          RUST_BACKTRACE: color
+        macos_beta_test:
+          imageName: macos-10.13
+          RUST_CHANNEL: beta
+          RUST_BACKTRACE: debug_test
+        macos_nightly_test:
+          imageName: macos-10.13
+          RUST_CHANNEL: nightly
+          RUST_BACKTRACE: debug_test
+    steps:
+    - bash: sh <(curl https://nixos.org/releases/nix/nix-2.2.1/install) --no-daemon
+      displayName: nix install
+    - bash: source $HOME/.nix-profile/etc/profile.d/nix.sh
+    - bash: nix-channel --add https://nixos.org/channels/$(NIXPKGS_CHANNEL) nixpkgs
+      displayName: nix-channel --add $(NIXPKGS_CHANNEL)
+    - bash: nix-channel --update
+    - bash: nix-shell -A ci --run "cargo panic -V"
+      displayName: cargo-panic build
+    - bash: nix-shell -A ci --run cargo-panic-test --argstr cmd run
+      displayName: cargo panic run
+    - bash: nix-shell -A ci --run cargo-panic-test --argstr cmd test
+      displayName: cargo panic test
