@@ -46,8 +46,9 @@ stages:
     - bash: sh <(curl https://nixos.org/releases/nix/nix-2.2.1/install) --no-daemon
       displayName: nix install
     - bash: nix-channel --add https://nixos.org/channels/$(NIXPKGS_CHANNEL) nixpkgs
-      displayName: nix-channel --add $(NIXPKGS_CHANNEL)
+      displayName: nix channel add $(NIXPKGS_CHANNEL)
     - bash: nix-channel --update
+      displayName: nix channel update
     - bash: nix-shell -A ci --run "cargo panic -V"
       displayName: cargo-panic build
     - bash: nix-shell -A ci --run cargo-panic-test --argstr cmd run
@@ -93,10 +94,10 @@ stages:
     steps:
     - bash: sh <(curl https://nixos.org/releases/nix/nix-2.2.1/install) --no-daemon
       displayName: nix install
-    - bash: source $HOME/.nix-profile/etc/profile.d/nix.sh
     - bash: nix-channel --add https://nixos.org/channels/$(NIXPKGS_CHANNEL) nixpkgs
-      displayName: nix-channel --add $(NIXPKGS_CHANNEL)
+      displayName: nix channel add $(NIXPKGS_CHANNEL)
     - bash: nix-channel --update
+      displayName: nix channel update
     - bash: nix-shell -A ci --run "cargo panic -V"
       displayName: cargo-panic build
     - bash: nix-shell -A ci --run cargo-panic-test --argstr cmd run
